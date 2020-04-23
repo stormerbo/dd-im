@@ -45,6 +45,7 @@ public class LoginHandler extends ChannelInboundHandlerAdapter {
         log.info("登录成功！当前信息:["+ JSON.toJSONString(rpcResponse.getData())+"]");
         User user = rpcResponse.getData();
         SessionUtil.setToken(user.getToken());
+        ctx.pipeline().remove(this);
       }else {
         log.error("登陆失败！"+rpcResponse.getMessage());
       }

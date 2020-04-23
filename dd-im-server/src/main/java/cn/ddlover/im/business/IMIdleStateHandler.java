@@ -4,12 +4,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author stormer.xia
  * @version 1.0
  * @date 2020/4/23 15:01
  */
+@Slf4j
 public class IMIdleStateHandler extends IdleStateHandler {
 
   private static final int READER_IDLE_TIME = 15;
@@ -20,7 +22,7 @@ public class IMIdleStateHandler extends IdleStateHandler {
 
   @Override
   protected void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) throws Exception {
-    System.out.println(READER_IDLE_TIME + "秒未读到数据，关闭连接");
-    ctx.channel().close();
+    log.error(READER_IDLE_TIME + "秒未读到数据，关闭连接");
+    ctx.channel().disconnect();
   }
 }

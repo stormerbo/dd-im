@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 public class HeartBeatTimerHandler extends ChannelInboundHandlerAdapter {
 
   private static final int HEARTBEAT_INTERVAL = 5;
+  private static final int CURRENT_RETRY_TIME = 1;
 
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -29,6 +30,16 @@ public class HeartBeatTimerHandler extends ChannelInboundHandlerAdapter {
     ctx.flush();
   }
 
+  @Override
+  public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    RpcMessage rpcMessage = (RpcMessage) msg;
+    if (rpcMessage.getRpcHeader().getType().equals(RpcMessageType.HEART_BEAT_RESPONSE.getType())) {
+      log.info("收到心跳");
+    } else {
+      ctx.fireChannelRead(msg);
+    }
+  }
+
   private void scheduleSendHeartBeat(ChannelHandlerContext ctx) {
     ctx.executor().schedule(() -> {
       if (ctx.channel().isActive()) {
@@ -36,9 +47,9 @@ public class HeartBeatTimerHandler extends ChannelInboundHandlerAdapter {
         ctx.channel().writeAndFlush(buildHeartBeatRequest());
         scheduleSendHeartBeat(ctx);
       }
-
     }, HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
   }
+
 
   private RpcMessage<Void> buildHeartBeatRequest() {
     RpcMessage<Void> response = new RpcMessage<>();
