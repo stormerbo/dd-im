@@ -18,6 +18,8 @@ public class ClientMessageHandler extends ChannelInboundHandlerAdapter {
     if (rpcMessage.getRpcHeader().getType().equals(RpcMessageType.MESSAGE_RESPONSE.getType())) {
       RpcMessage<String> resp = (RpcMessage<String>) rpcMessage;
       System.out.println("收到信息: " + resp.getData());
+    }else {
+      ctx.fireChannelRead(msg);
     }
   }
 

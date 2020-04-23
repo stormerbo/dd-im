@@ -24,11 +24,16 @@ public class HeartBeatTimerHandler extends ChannelInboundHandlerAdapter {
     super.channelActive(ctx);
   }
 
+  @Override
+  public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+    ctx.flush();
+  }
+
   private void scheduleSendHeartBeat(ChannelHandlerContext ctx) {
     ctx.executor().schedule(() -> {
       if (ctx.channel().isActive()) {
         log.info("开始发送心跳");
-        ctx.writeAndFlush(buildHeartBeatRequest());
+        ctx.channel().writeAndFlush(buildHeartBeatRequest());
         scheduleSendHeartBeat(ctx);
       }
 
@@ -41,5 +46,11 @@ public class HeartBeatTimerHandler extends ChannelInboundHandlerAdapter {
     rpcHeader.setType(RpcMessageType.HEART_BEAT_REQUEST.getType());
     response.setRpcHeader(rpcHeader);
     return response;
+  }
+
+  @Override
+  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    cause.printStackTrace();
+    ctx.close();
   }
 }

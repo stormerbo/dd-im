@@ -65,9 +65,9 @@ public class Server {
       socketChannel.pipeline().addLast("protostuff decoder", new ProtostuffDecoder());
       socketChannel.pipeline().addLast("frameEncoder", new LengthFieldPrepender(2));
       socketChannel.pipeline().addLast("protostuff encoder", new ProtostuffEncoder());
-      socketChannel.pipeline().addLast(new HeartBeatRequestHandler());
       socketChannel.pipeline().addLast(new LoginHandler());
       socketChannel.pipeline().addLast(new ServerMessageHandler());
+      socketChannel.pipeline().addLast(new HeartBeatRequestHandler());
     }
   }
 }
